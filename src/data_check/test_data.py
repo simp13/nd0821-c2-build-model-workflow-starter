@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy.stats
+import logging
 
 
 def test_column_names(data):
@@ -44,7 +45,8 @@ def test_proper_boundaries(data: pd.DataFrame):
     """
     Test proper longitude and latitude boundaries for properties in and around NYC
     """
-    idx = data['longitude'].between(-74.25, -73.50) & data['latitude'].between(40.5, 41.2)
+    idx = data['longitude'].between(-74.25, -
+                                    73.50) & data['latitude'].between(40.5, 41.2)
 
     assert np.sum(~idx) == 0
 
@@ -60,6 +62,20 @@ def test_similar_neigh_distrib(data: pd.DataFrame, ref_data: pd.DataFrame, kl_th
     assert scipy.stats.entropy(dist1, dist2, base=2) < kl_threshold
 
 
-########################################################
-# Implement here test_row_count and test_price_range   #
-########################################################
+def test_row_count(data: pd.DataFrame):
+    '''
+    Test row count in good range or not
+    '''
+    logging.info('Dataframe has {} rows'.format(data.shape[0]))
+    assert 15000 < data.shape[0] < 1000000
+
+
+def test_price_range(data: pd.DataFrame, min_price: int, max_price: int):
+    '''
+    Test price range are between minimum price and maximum price
+    '''
+    price_range_items_count = data['price'].between(
+        min_price, max_price).shape[0]
+    logging.info("Dataframe has {}-{} range item count:{} total of {}".format(
+        min_price, max_price, price_range_items_count, data.shape[0]))
+    assert data.shape[0] == price_range_items_count
